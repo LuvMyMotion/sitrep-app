@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SITREP — Creator Ops Deck</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#14171A;
+  --bg-panel:#1B1F23;
+  --bg-panel-raised:#20252A;
+  --bg-inset:#0F1214;
+  --border:#343B41;
+  --border-strong:#4A545C;
+  --rust:#B85C2E;
+  --rust-bright:#D6753F;
+  --yellow:#E3B23C;
+  --steel:#8B96A0;
+  --text:#E9E4D8;
+  --text-dim:#A3AAA3;
+  --text-faint:#6E7670;
+  --green:#7A9A66;
+  --red-crit:#B23A2A;
+  --font-display:'Oswald','Arial Narrow',sans-serif;
+  --font-body:'IBM Plex Sans','Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:14.5px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  pointer-events:none;
+  background-image:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+  z-index:0;
+}
+a{color:var(--yellow);}
+button{font-family:var(--font-body);cursor:pointer;}
+input,textarea,select{font-family:var(--font-body);}
+
+/* ---------- APP SHELL ---------- */
+#app-root{display:flex;min-height:100vh;position:relative;z-index:1;}
+
+#nav-rail{
+  width:200px;flex:0 0 200px;
+  background:var(--bg-panel);
+  border-right:1px solid var(--border-strong);
+  display:flex;flex-direction:column;
+  padding:18px 0;
+}
+.brand{
+  padding:0 16px 18px 16px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:10px;
+}
+.brand .mark{
+  font-family:var(--font-display);
+  font-size:20px;font-weight:700;letter-spacing:1.5px;
+  color:var(--yellow);
+}
+.brand .sub{
+  font-size:11px;color:var(--text-faint);letter-spacing:0.5px;margin-top:2px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 16px;
+  color:var(--text-dim);
+  border-left:3px solid transparent;
+  font-size:13.5px;
+  transition:background 0.12s ease, color 0.12s ease;
+}
+.nav-item:hover{background:var(--bg-panel-raised);color:var(--text);}
+.nav-item.active{
+  color:var(--text);
+  border-left-color:var(--rust-bright);
+  background:var(--bg-panel-raised);
+}
+.nav-item svg{flex:0 0 16px;width:16px;height:16px;opacity:0.85;}
+.nav-footer{margin-top:auto;padding:14px 16px 4px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text-faint);}
+
+#main{flex:1;min-width:0;padding:26px 34px 60px 34px;max-width:1180px;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.topbar h1{font-family:var(--font-display);font-weight:600;font-size:24px;margin:0;letter-spacing:0.3px;}
+.topbar .stamp-row{display:flex;gap:10px;flex-wrap:wrap;}
+
+/* ---------- STAMP / BADGE ---------- */
+.stamp{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--font-display);
+  font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
+  padding:4px 9px;
+  border:1.5px solid currentColor;
+  border-radius:2px;
+  background:transparent;
+}
+.stamp.crit{color:var(--red-crit);}
+.stamp.high{color:var(--rust-bright);}
+.stamp.med{color:var(--yellow);}
+.stamp.low{color:var(--green);}
+.stamp.neutral{color:var(--steel);}
+
+/* ---------- PANEL ---------- */
+.panel{
+  background:var(--bg-panel);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:20px 22px;
+  margin-bottom:18px;
+  position:relative;
+}
+.panel-riveted::before,.panel-riveted::after{
+  content:'';position:absolute;top:8px;width:4px;height:4px;border-radius:50%;
+  background:var(--border-strong);
+}
+.panel-riveted::before{left:8px;}
+.panel-riveted::after{right:8px;}
+
+.panel h2{
+  font-family:var(--font-display);font-size:13px;font-weight:600;
+  letter-spacing:1.4px;text-transform:uppercase;color:var(--text-dim);
+  margin:0 0 14px 0;padding-bottom:10px;border-bottom:1px solid var(--border);
+}
+.panel h3{font-family:var(--font-display);font-size:16px;font-weight:600;margin:0 0 6px 0;color:var(--text);}
+
+.directive-hero{
+  border-left:4px solid var(--rust-bright);
+}
+.directive-hero .headline{
+  font-family:var(--font-display);
+  font-size:26px;font-weight:600;line-height:1.25;color:var(--text);
+  margin:2px 0 12px 0;
+}
+.score-badge{
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+  width:56px;height:56px;border-radius:3px;border:2px solid currentColor;
+  font-family:var(--font-display);flex:0 0 auto;
+}
+.score-badge .num{font-size:20px;font-weight:700;line-height:1;}
+.score-badge .lbl{font-size:8px;letter-spacing:0.5px;text-transform:uppercase;}
+
+.factor-list{list-style:none;margin:10px 0 0 0;padding:0;}
+.factor-list li{
+  padding:7px 0 7px 16px;
+  border-bottom:1px dashed var(--border);
+  font-size:13.5px;color:var(--text-dim);
+  position:relative;
+}
+.factor-list li:last-child{border-bottom:none;}
+.factor-list li::before{
+  content:'▸';position:absolute;left:0;top:7px;color:var(--rust-bright);
+}
+.factor-tag{
+  font-size:9.5px;letter-spacing:0.6px;text-transform:uppercase;
+  padding:1px 5px;border-radius:2px;margin-left:6px;
+  border:1px solid var(--border-strong);color:var(--text-faint);
+}
+
+.meta-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:var(--text-faint);}
+.meta-row b{color:var(--text-dim);font-weight:600;}
+
+/* ---------- STAT STRIP ---------- */
+.stat-strip{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+.stat-box{
+  background:var(--bg-panel);border:1px solid var(--border);border-radius:3px;
+  padding:12px 16px;min-width:150px;flex:1;
+}
+.stat-box .v{font-family:var(--font-display);font-size:22px;font-weight:600;}
+.stat-box .k{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+.stat-box.warn .v{color:var(--yellow);}
+.stat-box.crit .v{color:var(--red-crit);}
+.stat-box.ok .v{color:var(--green);}
+
+/* ---------- TASK ROWS ---------- */
+.task-row{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:13px 0;border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.task-row:last-child{border-bottom:none;}
+.task-row .mini-badge{
+  flex:0 0 42px;height:42px;border-radius:3px;border:2px solid currentColor;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:var(--font-display);
+}
+.task-row .mini-badge .num{font-size:15px;font-weight:700;line-height:1;}
+.task-row .title{font-weight:600;color:var(--text);font-size:14.5px;}
+.task-row .sub{font-size:12.5px;color:var(--text-faint);margin-top:2px;}
+.task-detail{display:none;padding:10px 0 4px 56px;}
+.task-detail.open{display:block;}
+
+/* ---------- FORMS ---------- */
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:5px;letter-spacing:0.2px;}
+.field input[type=text],.field input[type=date],.field input[type=number],.field textarea,.field select{
+  width:100%;background:var(--bg-inset);border:1px solid var(--border-strong);
+  color:var(--text);padding:9px 10px;border-radius:2px;font-size:13.5px;
+}
+.field textarea{resize:vertical;min-height:64px;}
+.field-row{display:flex;gap:12px;}
+.field-row>.field{flex:1;}
+.checkbox-field{display:flex;align-items:center;gap:8px;margin-bottom:13px;font-size:13.5px;color:var(--text-dim);}
+.range-field input[type=range]{width:100%;}
+.range-field .range-val{font-family:var(--font-display);color:var(--yellow);font-size:13px;}
+
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--bg-panel-raised);color:var(--text);
+  border:1px solid var(--border-strong);border-radius:2px;
+  padding:9px 15px;font-size:13px;font-weight:500;letter-spacing:0.2px;
+}
+.btn:hover{border-color:var(--rust-bright);color:var(--rust-bright);}
+.btn-primary{background:var(--rust);border-color:var(--rust);color:#1a1200;font-weight:600;}
+.btn-primary:hover{background:var(--rust-bright);border-color:var(--rust-bright);color:#1a1200;}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--text-faint);}
+.btn-ghost:hover{color:var(--text-dim);border-color:var(--border-strong);}
+.btn-danger{background:transparent;border-color:var(--red-crit);color:var(--red-crit);}
+.btn-danger:hover{background:var(--red-crit);color:#fff;}
+.btn-sm{padding:5px 10px;font-size:11.5px;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+
+/* ---------- KANBAN ---------- */
+.board{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;}
+.col{flex:0 0 236px;background:var(--bg-inset);border:1px solid var(--border);border-radius:3px;padding:12px;}
+.col-head{font-family:var(--font-display);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px;display:flex;justify-content:space-between;}
+.card{background:var(--bg-panel);border:1px solid var(--border);border-radius:2px;padding:10px 11px;margin-bottom:9px;}
+.card .ct{font-weight:600;font-size:13px;color:var(--text);}
+.card .cs{font-size:11.5px;color:var(--text-faint);margin-top:3px;}
+.card .btn-row{margin-top:8px;}
+.empty-col{font-size:12px;color:var(--text-faint);font-style:italic;padding:6px 2px;}
+
+/* ---------- CHIPS ---------- */
+.chip-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
+.clip-thumb-grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;}
+.clip-thumb-card{
+  width:120px;background:var(--bg-panel);border:1px solid var(--border);border-radius:3px;
+  overflow:hidden;text-decoration:none;display:block;transition:border-color 0.12s ease;
+}
+.clip-thumb-card:hover{border-color:var(--rust-bright);}
+.clip-thumb-card img{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:#000;}
+.clip-thumb-placeholder{
+  width:100%;aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;
+  background:var(--bg-inset);color:var(--text-faint);font-family:var(--font-display);font-size:13px;letter-spacing:1px;
+}
+.clip-thumb-card .ct-label{
+  font-size:11px;color:var(--text-dim);padding:6px 7px 2px 7px;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.clip-thumb-card .ct-stats{font-size:10px;color:var(--text-faint);padding:0 7px 6px 7px;}
+.chip{
+  background:var(--bg-inset);border:1px solid var(--border-strong);border-radius:2px;
+  padding:4px 9px;font-size:12px;color:var(--text-dim);display:inline-flex;align-items:center;gap:6px;
+}
+.chip button{background:none;border:none;color:var(--text-faint);font-size:13px;padding:0;line-height:1;}
+.chip button:hover{color:var(--red-crit);}
+
+/* ---------- EMPTY / NOTE ---------- */
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-faint);}
+.empty-state h3{color:var(--text-dim);}
+.note-banner{
+  font-size:12px;color:var(--text-faint);background:var(--bg-inset);
+  border:1px solid var(--border);border-left:3px solid var(--steel);
+  padding:9px 13px;border-radius:2px;margin-bottom:16px;
+}
+.hazard-strip{
+  height:5px;width:100%;border-radius:2px;margin-bottom:16px;
+  background:repeating-linear-gradient(-45deg, var(--yellow) 0 10px, #1a1200 10px 20px);
+  opacity:0.7;
+}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.tabs-sub{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.tabs-sub button{background:var(--bg-inset);border:1px solid var(--border);color:var(--text-faint);padding:7px 13px;font-size:12.5px;border-radius:2px;}
+.tabs-sub button.active{color:var(--yellow);border-color:var(--yellow);}
+
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px;}
+.qc-metric{background:var(--bg-inset);border:1px solid var(--border);border-radius:3px;padding:10px 12px;}
+.qc-metric .n{font-family:var(--font-display);font-size:19px;font-weight:600;color:var(--yellow);}
+.qc-metric .l{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.5px;}
+
+.spinner{
+  display:inline-block;width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--border-strong);border-top-color:var(--yellow);
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{
+  position:fixed;bottom:22px;right:22px;background:var(--bg-panel-raised);
+  border:1px solid var(--rust-bright);color:var(--text);padding:11px 18px;border-radius:3px;
+  font-size:13px;z-index:50;box-shadow:0 4px 14px rgba(0,0,0,0.4);
+  animation:toastin 0.2s ease;
+}
+@keyframes toastin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+@media (max-width:820px){
+  #app-root{flex-direction:column;}
+  #nav-rail{width:100%;flex:none;flex-direction:row;overflow-x:auto;padding:8px;}
+  .brand{display:none;}
+  .nav-item{border-left:none;border-bottom:3px solid transparent;white-space:nowrap;}
+  .nav-item.active{border-bottom-color:var(--rust-bright);}
+  .nav-footer{display:none;}
+  #main{padding:18px;}
+}
+</style>
+</head>
+<body>
+<div id="app-root">
+  <nav id="nav-rail"></nav>
+  <main id="main"></main>
+</div>
+<div id="toast-host"></div>
+<script>
+/* ============================================================
+   SITREP — Creator Ops Deck
+   Single-file persistent creator operating system.
+   ============================================================ */
+
+/* ---------------- CONSTANTS ---------------- */
+const VIDEO_STAGES = ['recording_done','tiktok_clips_pending','yt_editing','thumbnail_title','qc_review','scheduled','published'];
+const STAGE_LABELS = {
+  recording_done:'Recorded — Not Started',
+  tiktok_clips_pending:'Awaiting TikTok Clips',
+  yt_editing:'Editing (YouTube)',
+  thumbnail_title:'Thumbnail & Title',
+  qc_review:'QC Review',
+  scheduled:'Scheduled',
+  published:'Published'
+};
+const CLIP_STATUSES = ['idea','editing','ready','posted'];
+const CLIP_STATUS_LABELS = {idea:'Idea',editing:'Editing',ready:'Ready to Post',posted:'Posted'};
+
+const NAV_ITEMS = [
+  {id:'directive', label:'Directive'},
+  {id:'pipeline', label:'Pipeline'},
+  {id:'repurpose', label:'Repurposing'},
+  {id:'qc', label:'QC Review'},
+  {id:'potential', label:'Potential Score'},
+  {id:'profile', label:'Profile'}
+];
+
+const ICONS = {
+  directive:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/></svg>',
+  pipeline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="5" height="16" rx="1"/><rect x="9.5" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="5" height="14" rx="1"/></svg>',
+  repurpose:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="4" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 6v6M12 12l-6.2 5M12 12l6.2 5"/></svg>',
+  qc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>',
+  potential:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.6 6.6L21 11l-5.6 3L14 21l-2-5.4L6 21l1.4-6.6L2 11l6.4-2.4z"/></svg>',
+  profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>'
+};
+
+/* ---------------- STATE ---------------- */
+let state = {
+  loaded:false,
+  activeTab:'directive',
+  ui:{ openForm:null, openTaskId:null, repurposeSelId:null, potentialTab:'score', qcSelectedVideoId:null, qcLoading:false, qcError:null, potentialLoading:false, potentialError:null, potentialResult:null, tiktokConnected:false, ytSyncing:false, ttSyncing:false, ideaGenLoading:false, ideaGenError:null, generatedIdeas:null, captionLoadingId:null },
+  profile:{ channelName:'LuvMyMotion', youtubeUrl:'', tiktokUrl:'', niches:[], editingStyle:'', preferredLength:'', cadenceGoal:'', lessonsLearned:[], ideas:[], ideaTimeMin:20, recordTimeMin:90, tiktokEditTimeMin:30, youtubeEditTimeMin:180 },
+  sessions:[],
+  clips:[],
+  videos:[],
+  settings:{ priorityFocus:'balanced' }
+};
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function daysSince(dateStr){
+  if(!dateStr) return null;
+  const d = new Date(dateStr+(dateStr.length<=10?'T00:00:00':''));
+  if(isNaN(d.getTime())) return null;
+  return Math.floor((Date.now()-d.getTime())/86400000);
+}
+function fmtDate(d){ if(!d) return '—'; try{ return new Date(d+(d.length<=10?'T00:00:00':'')).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return d; } }
+function fmtCount(n){
+  n = Number(n)||0;
+  if(n>=1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'')+'M';
+  if(n>=1000) return (n/1000).toFixed(1).replace(/\.0$/,'')+'K';
+  return String(n);
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ---------------- STORAGE (backend-backed) ---------------- */
+async function loadAll(){
+  try{
+    const res = await fetch('/api/data');
+    if(res.ok){
+      const data = await res.json();
+      ['profile','sessions','clips','videos','settings'].forEach(k=>{
+        if(data[k]!==undefined) state[k]=data[k];
+      });
+    } else {
+      showToast('Could not load your data from the server.');
+    }
+  }catch(e){
+    console.error(e);
+    showToast('Could not reach the server to load your data.');
+  }
+  if(!state.profile.channelName) state.profile.channelName = 'LuvMyMotion';
+  if(typeof state.profile.youtubeUrl === 'undefined') state.profile.youtubeUrl = '';
+  if(typeof state.profile.tiktokUrl === 'undefined') state.profile.tiktokUrl = '';
+  if(typeof state.profile.ideaTimeMin === 'undefined') state.profile.ideaTimeMin = 20;
+  if(typeof state.profile.recordTimeMin === 'undefined') state.profile.recordTimeMin = 90;
+  if(typeof state.profile.tiktokEditTimeMin === 'undefined') state.profile.tiktokEditTimeMin = 30;
+  if(typeof state.profile.youtubeEditTimeMin === 'undefined') state.profile.youtubeEditTimeMin = 180;
+  state.loaded = true;
+}
+async function persist(key){
+  try{
+    const res = await fetch('/api/data', {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ key, value: state[key] })
+    });
+    if(!res.ok){ showToast('Could not save — server error.'); }
+  }catch(e){
+    console.error('Storage save failed for', key, e);
+    showToast('Could not save — network error. Your change is kept for this session only.');
+  }
+}
+async function resetAllData(){
+  state.profile = { channelName:'LuvMyMotion', youtubeUrl:'', tiktokUrl:'', niches:[], editingStyle:'', preferredLength:'', cadenceGoal:'', lessonsLearned:[], ideas:[], ideaTimeMin:20, recordTimeMin:90, tiktokEditTimeMin:30, youtubeEditTimeMin:180 };
+  state.sessions = []; state.clips = []; state.videos = [];
+  state.settings = { priorityFocus:'balanced' };
+  for(const k of ['profile','sessions','clips','videos','settings']){ await persist(k); }
+  render();
+  showToast('All data cleared.');
+}
+
+function showToast(msg){
+  const host = document.getElementById('toast-host');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(()=>el.remove(), 3200);
+}
+
+/* ---------------- PRIORITY ENGINE ----------------
+   Fully rule-based and transparent. Runs entirely on data you've
+   logged yourself — there is no live analytics feed behind this.
+   Every factor is tagged so you can see what's fact vs. estimate
+   vs. something you configured manually.
+------------------------------------------------------------------ */
+function categoryFor(score){
+  if(score>=80) return {emoji:'🔴', label:'Critical', cls:'crit'};
+  if(score>=60) return {emoji:'🟠', label:'High Priority', cls:'high'};
+  if(score>=40) return {emoji:'🟡', label:'Medium Priority', cls:'med'};
+  return {emoji:'🟢', label:'Low Priority', cls:'low'};
+}
+
+const STAGE_BASE_URGENCY = { recording_done:20, tiktok_clips_pending:35, yt_editing:55, thumbnail_title:65, qc_review:75, scheduled:85 };
+
+function computeDirectives(){
+  const tasks = [];
+  const inProgressVideos = state.videos.filter(v=>v.stage!=='published');
+  const publishedVideos = state.videos.filter(v=>v.stage==='published');
+
+  const lastYtTime = publishedVideos.length
+    ? Math.max(...publishedVideos.map(v=>new Date(v.publishedDate||v.createdDate).getTime()))
+    : null;
+  const postedTiktoks = state.clips.filter(c=>c.platform==='tiktok' && c.status==='posted');
+  const lastTtTime = postedTiktoks.length
+    ? Math.max(...postedTiktoks.map(c=>new Date(c.postedDate||c.createdDate).getTime()))
+    : null;
+
+  const daysSinceYt = lastYtTime!==null ? Math.floor((Date.now()-lastYtTime)/86400000) : null;
+  const daysSinceTt = lastTtTime!==null ? Math.floor((Date.now()-lastTtTime)/86400000) : null;
+
+  const stageOrder = ['recording_done','tiktok_clips_pending','yt_editing','thumbnail_title','qc_review','scheduled'];
+
+  inProgressVideos.forEach(v=>{
+    let score = STAGE_BASE_URGENCY[v.stage] || 20;
+    const factors = [];
+    factors.push({label:`Currently at stage: ${STAGE_LABELS[v.stage]}`, type:'data'});
+
+    const pct = Number(v.pctComplete)||0;
+    score += Math.round(pct/100*15);
+    if(pct>0) factors.push({label:`You marked this ${pct}% complete`, type:'preference'});
+
+    const others = inProgressVideos.filter(o=>o.id!==v.id);
+    const isFurthest = others.length>0 && others.every(o=> stageOrder.indexOf(o.stage) <= stageOrder.indexOf(v.stage));
+    if(isFurthest){
+      score += 10;
+      factors.push({label:'Furthest along of all your in-progress videos — finishing it unblocks the rest of your queue', type:'estimate'});
+    }
+
+    const session = state.sessions.find(s=>s.id===v.sessionId);
+    if(session && session.worthClipping){
+      const linkedClips = state.clips.filter(c=>c.sessionId===session.id);
+      if(linkedClips.length===0){
+        score += 8;
+        factors.push({label:'Source session was flagged clip-worthy and has no TikTok/Shorts made from it yet — finishing this video is a chance to knock both out', type:'estimate'});
+      }
+    }
+
+    if(v.stage==='scheduled' && v.scheduledDate){
+      const d = daysSince(v.scheduledDate);
+      if(d!==null && d>=0){
+        score = Math.max(score, 93);
+        factors.push({label:`Scheduled publish date (${fmtDate(v.scheduledDate)}) has arrived`, type:'data'});
+      } else if(d!==null && d>=-2){
+        score = Math.max(score, 85);
+        factors.push({label:`Scheduled publish date (${fmtDate(v.scheduledDate)}) is imminent`, type:'data'});
+      }
+    }
+
+    score = Math.min(100, Math.round(score));
+    tasks.push({
+      id:'video-'+v.id, kind:'video', refId:v.id, tab:'pipeline',
+      title: v.stage==='qc_review' ? `Run pre-publish QC on "${v.title}"` :
+             v.stage==='scheduled' ? `Publish "${v.title}" — it's scheduled` :
+             `Move "${v.title}" forward (${STAGE_LABELS[v.stage]})`,
+      score, factors,
+      effort: pct>=70 ? 'Low–Medium' : 'Medium–High',
+      deadline: v.scheduledDate || null
+    });
+  });
+
+  const unprocessedSessions = state.sessions.filter(s=>
+    state.clips.filter(c=>c.sessionId===s.id).length===0 && !state.videos.find(v=>v.sessionId===s.id)
+  );
+  unprocessedSessions.forEach(s=>{
+    const age = daysSince(s.date) || 0;
+    let score = Math.min(35, age*5);
+    const factors = [{label:`Session recorded ${age} day(s) ago — nothing has been made from it yet`, type:'data'}];
+    if(daysSinceTt!==null && daysSinceTt>=3){
+      score += daysSinceTt>=7 ? 45 : 28;
+      factors.push({label:`${daysSinceTt} day(s) since your last posted TikTok`, type:'data'});
+    } else if(daysSinceTt===null){
+      score += 22;
+      factors.push({label:'No TikTok posts logged yet on your channel', type:'data'});
+    }
+    if(s.worthClipping){
+      score += 15;
+      factors.push({label:'You flagged this session as clip-worthy when you logged it', type:'preference'});
+    }
+    score = Math.min(100, Math.round(score));
+    tasks.push({
+      id:'session-'+s.id, kind:'session', refId:s.id, tab:'pipeline',
+      title:`Pull TikTok clips from your ${escapeHtml(s.game||'gameplay')} session (${fmtDate(s.date)})`,
+      score, factors, effort:'Low', deadline:null
+    });
+  });
+
+  const activeEditing = state.videos.some(v=>['yt_editing','thumbnail_title','qc_review'].includes(v.stage));
+  if(unprocessedSessions.length>=3 && !activeEditing){
+    tasks.push({
+      id:'bottleneck-sessions', kind:'bottleneck', refId:null, tab:'pipeline',
+      title:`Commit one session to a YouTube edit — ${unprocessedSessions.length} sessions are piling up untouched`,
+      score:78,
+      factors:[
+        {label:`${unprocessedSessions.length} logged sessions have no clips or video started yet`, type:'data'},
+        {label:'Nothing is currently in a YouTube editing stage — this is why nothing new is close to publishing', type:'estimate'}
+      ],
+      effort:'Medium', deadline:null
+    });
+  }
+
+  if(daysSinceYt!==null && daysSinceYt>=10){
+    tasks.push({
+      id:'quiet-youtube', kind:'reminder', refId:null, tab:'pipeline',
+      title:`It's been ${daysSinceYt} days since your last YouTube upload`,
+      score:Math.min(96, 40+daysSinceYt*2),
+      factors:[{label:`Last published video was ${daysSinceYt} days ago, based on the dates you've logged`, type:'data'}],
+      effort:'—', deadline:null
+    });
+  } else if(daysSinceYt===null && state.videos.length===0 && state.sessions.length>0){
+    tasks.push({
+      id:'no-yt-yet', kind:'reminder', refId:null, tab:'pipeline',
+      title:'No published YouTube video logged yet — mark one as published once it goes live',
+      score:28,
+      factors:[{label:'No published videos in your pipeline yet', type:'data'}],
+      effort:'—', deadline:null
+    });
+  }
+
+  tasks.sort((a,b)=>b.score-a.score);
+  return { tasks, daysSinceYt, daysSinceTt, unprocessedCount: unprocessedSessions.length };
+}
+
+function dayStrength(platform, dow){
+  // dow: 0=Sun...6=Sat
+  if(platform==='tiktok'){
+    if([2,3,4].includes(dow)) return {label:'Strong', cls:'low'};
+    if([5,6].includes(dow)) return {label:'Good', cls:'med'};
+    if(dow===1) return {label:'OK', cls:'neutral'};
+    return {label:'Weak', cls:'high'};
+  } else {
+    if([4,5].includes(dow)) return {label:'Strong', cls:'low'};
+    if([2,3,6].includes(dow)) return {label:'Good', cls:'med'};
+    return {label:'OK', cls:'neutral'};
+  }
+}
+function build14DayOutlook(){
+  const days = [];
+  for(let i=0;i<14;i++){
+    const d = new Date();
+    d.setDate(d.getDate()+i);
+    days.push({
+      date: d,
+      label: d.toLocaleDateString(undefined,{weekday:'short', month:'short', day:'numeric'}),
+      tiktok: dayStrength('tiktok', d.getDay()),
+      youtube: dayStrength('youtube', d.getDay())
+    });
+  }
+  return days;
+}
+function factorTag(type){
+  const m = {data:'Your logged data', estimate:'Rule-based estimate', preference:'Your preference'};
+  return `<span class="factor-tag">${m[type]||type}</span>`;
+}
+
+/* ---------------- BEST TIME TO POST ----------------
+   Based on 2026 gaming-audience research (Sprout Social, SocialPilot,
+   Buffer, industry benchmarks) for a UK creator with a US-crossover
+   audience. Uses your device's local clock — this assumes you're
+   checking the dashboard from the UK. Not a guarantee, just a
+   research-backed starting point.
+------------------------------------------------------------------ */
+const POST_WINDOWS = {
+  tiktok: { startH:20, startM:30, endH:21, endM:30, label:'TikTok', note:'Best window: Tue–Thu evenings (also solid Fri–Sat). This slot also lines up with the US Eastern evening peak a few hours later.' },
+  youtube: { startH:19, startM:0, endH:21, endM:0, label:'YouTube', note:'Best window: Thu–Fri. This slot conveniently also hits the US Eastern afternoon pre-peak window at the same time.' }
+};
+function nextWindowStart(startH,startM){
+  const now = new Date();
+  const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startH, startM, 0, 0);
+  if(target <= now) target.setDate(target.getDate()+1);
+  return target;
+}
+function fmtCountdown(target){
+  const diff = target.getTime() - Date.now();
+  if(diff<=0) return 'now';
+  const h = Math.floor(diff/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+function fmtClock(d){
+  return d.toLocaleString(undefined, { weekday:'short', hour:'numeric', minute:'2-digit' });
+}
+
+/* ---------------- RENDER: SHELL ---------------- */
+function renderNav(){
+  const nav = document.getElementById('nav-rail');
+  nav.innerHTML = `
+    <div class="brand">
+      <div class="mark">SITREP</div>
+      <div class="sub">Creator Ops Deck</div>
+    </div>
+    ${NAV_ITEMS.map(item=>`
+      <div class="nav-item ${state.activeTab===item.id?'active':''}" data-action="nav" data-tab="${item.id}">
+        ${ICONS[item.id]}<span>${item.label}</span>
+      </div>
+    `).join('')}
+    <div class="nav-footer">
+      <div style="font-weight:600;color:var(--text-dim);margin-bottom:6px;">${escapeHtml(state.profile.channelName) || 'No channel name set'}</div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        ${state.profile.youtubeUrl ? `<a href="${escapeHtml(state.profile.youtubeUrl)}" target="_blank" rel="noopener">▸ YouTube</a>` : ''}
+        ${state.profile.tiktokUrl ? `<a href="${escapeHtml(state.profile.tiktokUrl)}" target="_blank" rel="noopener">▸ TikTok</a>` : ''}
+        ${(!state.profile.youtubeUrl && !state.profile.tiktokUrl) ? '<span style="color:var(--text-faint);">Add channel links in Profile</span>' : ''}
+      </div>
+    </div>
+  `;
+}
+
+function render(){
+  renderNav();
+  const main = document.getElementById('main');
+  if(!state.loaded){
+    main.innerHTML = `<div class="empty-state"><span class="spinner"></span><p>Loading your ops deck…</p></div>`;
+    return;
+  }
+  const renderers = {
+    directive: renderDirective, pipeline: renderPipeline, repurpose: renderRepurpose,
+    qc: renderQC, potential: renderPotential, profile: renderProfile
+  };
+  main.innerHTML = (renderers[state.activeTab] || renderDirective)();
+}
+
+/* ---------------- RENDER: DIRECTIVE (DASHBOARD) ---------------- */
+function renderDirective(){
+  const { tasks, daysSinceYt, daysSinceTt, unprocessedCount } = computeDirectives();
+  const top = tasks[0];
+  const rest = tasks.slice(1, 6);
+
+  const statStrip = `
+    <div class="stat-strip">
+      <div class="stat-box ${daysSinceYt===null?'':(daysSinceYt>=10?'crit':daysSinceYt>=5?'warn':'ok')}">
+        <div class="v">${daysSinceYt===null?'—':daysSinceYt}</div>
+        <div class="k">Days since last YouTube upload</div>
+      </div>
+      <div class="stat-box ${daysSinceTt===null?'':(daysSinceTt>=7?'crit':daysSinceTt>=3?'warn':'ok')}">
+        <div class="v">${daysSinceTt===null?'—':daysSinceTt}</div>
+        <div class="k">Days since last TikTok post</div>
+      </div>
+      <div class="stat-box ${unprocessedCount>=3?'warn':''}">
+        <div class="v">${unprocessedCount}</div>
+        <div class="k">Sessions with nothing made from them</div>
+      </div>
+      <div class="stat-box">
+        <div class="v">${state.videos.filter(v=>v.stage!=='published').length}</div>
+        <div class="k">Videos in progress</div>
+      </div>
+    </div>
+  `;
+
+  const tiktokTarget = nextWindowStart(POST_WINDOWS.tiktok.startH, POST_WINDOWS.tiktok.startM);
+  const youtubeTarget = nextWindowStart(POST_WINDOWS.youtube.startH, POST_WINDOWS.youtube.startM);
+
+  const p = state.profile;
+  const ideaMin = Number(p.ideaTimeMin)||20;
+  const recordMin = Number(p.recordTimeMin)||90;
+  const ttEditMin = Number(p.tiktokEditTimeMin)||30;
+  const ytEditMin = Number(p.youtubeEditTimeMin)||180;
+  const runwayToTiktokMin = ideaMin + recordMin + ttEditMin;
+  const runwayToYoutubeMin = runwayToTiktokMin + ytEditMin;
+  const minsUntilTiktok = (tiktokTarget.getTime() - Date.now())/60000;
+  const minsUntilYoutube = (youtubeTarget.getTime() - Date.now())/60000;
+  const fmtMin = m => m>=60 ? `${Math.floor(m/60)}h ${Math.round(m%60)}m` : `${Math.round(m)}m`;
+  const tiktokReady = minsUntilTiktok >= runwayToTiktokMin;
+  const youtubeReady = minsUntilYoutube >= runwayToYoutubeMin;
+
+  const bestTimePanel = `
+    <div class="panel">
+      <h2>Best Time To Post</h2>
+      <div class="stat-strip" style="margin-bottom:0;">
+        <div class="stat-box">
+          <div class="v">${fmtClock(tiktokTarget)}</div>
+          <div class="k">Next TikTok window · in ${fmtCountdown(tiktokTarget)}</div>
+        </div>
+        <div class="stat-box">
+          <div class="v">${fmtClock(youtubeTarget)}</div>
+          <div class="k">Next YouTube window · in ${fmtCountdown(youtubeTarget)}</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <h3 style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Runway needed for a brand-new idea, start to finish</h3>
+      <ul class="factor-list">
+        <li>Landing on a good idea: <b>${fmtMin(ideaMin)}</b>${factorTag('preference')}</li>
+        <li>Recording the session: <b>${fmtMin(recordMin)}</b>${factorTag('preference')}</li>
+        <li>Editing + posting the TikTok clip: <b>${fmtMin(ttEditMin)}</b>${factorTag('preference')}</li>
+        <li>Editing the YouTube long-form after that: <b>${fmtMin(ytEditMin)}</b>${factorTag('preference')}</li>
+      </ul>
+      <div class="stamp ${tiktokReady?'low':'high'}" style="margin-top:10px;">
+        ${tiktokReady?'✅':'⚠'} Total to TikTok (${fmtMin(runwayToTiktokMin)}) — ${tiktokReady?'you have time before tonight&#39;s window':'won&#39;t make the next window, aim for the one after'}
+      </div>
+      <div class="stamp ${youtubeReady?'low':'high'}" style="margin-top:8px;">
+        ${youtubeReady?'✅':'⚠'} Total to YouTube (${fmtMin(runwayToYoutubeMin)}) — ${youtubeReady?'you have time before its next window':'won&#39;t make the next window, aim for the one after'}
+      </div>
+      <p class="cs" style="margin-top:12px;">Edit these time estimates anytime in Profile. ${POST_WINDOWS.tiktok.note} ${POST_WINDOWS.youtube.note}</p>
+      <div class="divider"></div>
+      <h3 style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Next 14 Days — Plan Your Idea → Record → Edit Runway</h3>
+      <div style="max-height:280px;overflow-y:auto;">
+        ${build14DayOutlook().map(d=>`
+          <div class="task-row" style="cursor:default;padding:9px 0;">
+            <div style="flex:0 0 110px;font-size:13px;color:var(--text-dim);">${d.label}</div>
+            <div style="flex:1;display:flex;gap:8px;">
+              <span class="stamp ${d.tiktok.cls}" style="font-size:10px;">TT ${d.tiktok.label}</span>
+              <span class="stamp ${d.youtube.cls}" style="font-size:10px;">YT ${d.youtube.label}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  if(!top){
+    return `
+      <div class="topbar"><h1>Today's Directive</h1></div>
+      ${statStrip}
+      ${bestTimePanel}
+      <div class="panel empty-state">
+        <h3>Nothing queued yet</h3>
+        <p>Log a recording session or a video in progress on the <b>Pipeline</b> tab, and I'll start ranking what to do next.</p>
+        <div class="btn-row" style="justify-content:center;">
+          <button class="btn btn-primary" data-action="nav" data-tab="pipeline">Go to Pipeline</button>
+        </div>
+      </div>
+    `;
+  }
+
+  const cat = categoryFor(top.score);
+  const channelLinks = (state.profile.youtubeUrl || state.profile.tiktokUrl) ? `
+    <div class="stamp-row">
+      ${state.profile.youtubeUrl ? `<a class="stamp neutral" href="${escapeHtml(state.profile.youtubeUrl)}" target="_blank" rel="noopener" style="text-decoration:none;">YouTube ▸</a>` : ''}
+      ${state.profile.tiktokUrl ? `<a class="stamp neutral" href="${escapeHtml(state.profile.tiktokUrl)}" target="_blank" rel="noopener" style="text-decoration:none;">TikTok ▸</a>` : ''}
+    </div>` : '';
+
+  return `
+    <div class="topbar">
+      <h1>${escapeHtml(state.profile.channelName) || 'Creator'}'s Directive</h1>
+      ${channelLinks}
+    </div>
+    <div class="note-banner">This board runs entirely on data you've logged yourself and rule-based scoring — not live platform analytics. It recalculates every time your pipeline changes.</div>
+    ${statStrip}
+    ${bestTimePanel}
+
+    <div class="panel directive-hero panel-riveted">
+      <h2>Highest-Impact Action</h2>
+      <div style="display:flex;gap:16px;align-items:flex-start;">
+        <div class="score-badge stamp ${cat.cls}"><span class="num">${top.score}</span><span class="lbl">${cat.label.split(' ')[0]}</span></div>
+        <div style="flex:1;">
+          <div class="stamp ${cat.cls}">${cat.emoji} ${cat.label}</div>
+          <div class="headline">${top.title}</div>
+          <ul class="factor-list">
+            ${top.factors.map(f=>`<li>${f.label}${factorTag(f.type)}</li>`).join('')}
+          </ul>
+          <div class="meta-row">
+            <span><b>Effort:</b> ${top.effort}</span>
+            ${top.deadline ? `<span><b>Deadline:</b> ${fmtDate(top.deadline)}</span>` : ''}
+            <span><b>Priority score:</b> ${top.score}/100</span>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" data-action="nav" data-tab="${top.tab}">Open in Pipeline</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${rest.length ? `
+    <div class="panel">
+      <h2>Next Up</h2>
+      ${rest.map(t=>{
+        const c = categoryFor(t.score);
+        const open = state.ui.openTaskId===t.id;
+        return `
+        <div>
+          <div class="task-row" data-action="toggle-task" data-id="${t.id}">
+            <div class="mini-badge stamp ${c.cls}"><span class="num">${t.score}</span></div>
+            <div style="flex:1;">
+              <div class="title">${c.emoji} ${t.title}</div>
+              <div class="sub">${c.label} · Effort: ${t.effort}${t.deadline?` · Deadline: ${fmtDate(t.deadline)}`:''}</div>
+            </div>
+          </div>
+          <div class="task-detail ${open?'open':''}">
+            <ul class="factor-list">
+              ${t.factors.map(f=>`<li>${f.label}${factorTag(f.type)}</li>`).join('')}
+            </ul>
+            <div class="btn-row"><button class="btn btn-sm" data-action="nav" data-tab="${t.tab}">Open in Pipeline</button></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+  `;
+}
+
+/* ---------------- RENDER: PIPELINE ---------------- */
+function renderPipeline(){
+  const openForm = state.ui.openForm;
+  const sessionOptions = state.sessions.map(s=>`<option value="${s.id}">${fmtDate(s.date)} — ${escapeHtml(s.game||'session')}</option>`).join('');
+
+  const sessionForm = openForm==='session' ? `
+    <div class="panel">
+      <h2>Log a Recording Session</h2>
+      <form data-action="save-session">
+        <div class="field-row">
+          <div class="field"><label>Date</label><input type="date" name="date" value="${todayISO()}" required></div>
+          <div class="field"><label>Game / content type</label><input type="text" name="game" placeholder="Rust, PvP raid, etc." required></div>
+        </div>
+        <div class="field"><label>Duration (minutes)</label><input type="number" name="durationMin" min="0" placeholder="e.g. 120"></div>
+        <div class="field"><label>Playing with (optional)</label><input type="text" name="playingWith" placeholder="@duo_creator_name"></div>
+        <div class="field"><label>Notes — what happened, moments worth remembering</label><textarea name="notes" placeholder="Insane triple headshot at 40min, funny raid fail, etc.">${escapeHtml(state.ui.sessionNotesPrefill||'')}</textarea></div>
+        <div class="checkbox-field"><input type="checkbox" name="worthClipping" id="wc"><label for="wc" style="margin:0;">This session has clip-worthy moments</label></div>
+        <div class="btn-row">
+          <button type="submit" class="btn btn-primary">Save Session</button>
+          <button type="button" class="btn btn-ghost" data-action="close-form">Cancel</button>
+        </div>
+      </form>
+    </div>` : '';
+
+  const clipForm = openForm==='clip' ? `
+    <div class="panel">
+      <h2>Add a Clip</h2>
+      <form data-action="save-clip">
+        <div class="field-row">
+          <div class="field"><label>Source session (optional)</label><select name="sessionId"><option value="">— none —</option>${sessionOptions}</select></div>
+          <div class="field"><label>Platform</label><select name="platform"><option value="tiktok">TikTok</option><option value="yt_short">YouTube Short</option></select></div>
+        </div>
+        <div class="field"><label>Working title / hook</label><input type="text" name="title" placeholder="e.g. Solo vs 3 man raid, clutch clip" required></div>
+        <div class="btn-row">
+          <button type="submit" class="btn btn-primary">Add Clip</button>
+          <button type="button" class="btn btn-ghost" data-action="close-form">Cancel</button>
+        </div>
+      </form>
+    </div>` : '';
+
+  const videoForm = openForm==='video' ? `
+    <div class="panel">
+      <h2>Add a Long-Form Video</h2>
+      <form data-action="save-video">
+        <div class="field"><label>Title</label><input type="text" name="title" placeholder="Working title" required></div>
+        <div class="field-row">
+          <div class="field"><label>Source session (optional)</label><select name="sessionId"><option value="">— none —</option>${sessionOptions}</select></div>
+          <div class="field"><label>Stage</label><select name="stage">${VIDEO_STAGES.filter(s=>s!=='published').map(s=>`<option value="${s}">${STAGE_LABELS[s]}</option>`).join('')}</select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>% complete</label><input type="number" name="pctComplete" min="0" max="100" value="0"></div>
+          <div class="field"><label>Scheduled date (if scheduled)</label><input type="date" name="scheduledDate"></div>
+        </div>
+        <div class="field"><label>Notes</label><textarea name="notes"></textarea></div>
+        <div class="btn-row">
+          <button type="submit" class="btn btn-primary">Add Video</button>
+          <button type="button" class="btn btn-ghost" data-action="close-form">Cancel</button>
+        </div>
+      </form>
+    </div>` : '';
+
+  const bulkImportForm = openForm==='bulk-import' ? `
+    <div class="panel">
+      <h2>Bulk Import Already-Posted Content</h2>
+      <div class="note-banner">Copy titles straight from your YouTube/TikTok channel and paste below — one per line. Optional date: <code>Title | 2026-08-14</code>. This is a manual paste, not a live sync, since the app can't reach platform APIs directly from your browser.</div>
+      <form data-action="bulk-import">
+        <div class="field"><label>Published YouTube videos</label><textarea name="youtube" rows="5" placeholder="Solo vs 3 man raid outplay | 2026-08-20
+Base tour: my new 2x2"></textarea></div>
+        <div class="field"><label>Posted TikToks / Shorts</label><textarea name="tiktok" rows="5" placeholder="Insane triple headshot | 2026-08-25"></textarea></div>
+        <div class="btn-row">
+          <button type="submit" class="btn btn-primary">Import</button>
+          <button type="button" class="btn btn-ghost" data-action="close-form">Cancel</button>
+        </div>
+      </form>
+    </div>` : '';
+
+  function sessionCard(s){
+    const linkedClips = state.clips.filter(c=>c.sessionId===s.id).length;
+    const linkedVideo = state.videos.find(v=>v.sessionId===s.id);
+    return `
+    <div class="card">
+      <div class="ct">${escapeHtml(s.game||'Session')} ${s.worthClipping?'⭐':''}</div>
+      <div class="cs">${fmtDate(s.date)}${s.durationMin?` · ${s.durationMin}min`:''}</div>
+      ${s.playingWith?`<span class="chip" style="margin-top:4px;display:inline-block;">🎮 with ${escapeHtml(s.playingWith)}</span>`:''}
+      ${s.notes?`<div class="cs">${escapeHtml(s.notes)}</div>`:''}
+      <div class="cs">${linkedClips} clip(s)${linkedVideo?' · video started':''}</div>
+      <div class="btn-row">
+        ${!linkedClips ? `<button class="btn btn-sm" data-action="quick-clip" data-id="${s.id}">+ TikTok clip</button>` : ''}
+        ${!linkedVideo ? `<button class="btn btn-sm" data-action="quick-video" data-id="${s.id}">+ YT video</button>` : ''}
+        <button class="btn btn-sm btn-danger" data-action="delete-session" data-id="${s.id}">Delete</button>
+      </div>
+    </div>`;
+  }
+
+  function clipCard(c){
+    const idx = CLIP_STATUSES.indexOf(c.status);
+    const next = CLIP_STATUSES[idx+1];
+    const captionLoading = state.ui.captionLoadingId===c.id;
+    return `
+    <div class="card">
+      <div class="ct">${escapeHtml(c.title)}</div>
+      <div class="cs">${c.platform==='tiktok'?'TikTok':'YouTube Short'} · ${CLIP_STATUS_LABELS[c.status]}</div>
+      ${c.captionSuggestion ? `
+        <div class="panel" style="margin:8px 0 0 0;padding:10px 11px;background:var(--bg-inset);">
+          <div class="cs" style="color:var(--text-dim);white-space:pre-wrap;">${escapeHtml(c.captionSuggestion)}</div>
+        </div>
+      ` : ''}
+      <div class="btn-row">
+        ${next ? `<button class="btn btn-sm" data-action="advance-clip" data-id="${c.id}">Mark ${CLIP_STATUS_LABELS[next]}</button>` : ''}
+        ${c.platform==='tiktok' ? `<button class="btn btn-sm" data-action="generate-caption" data-id="${c.id}" ${captionLoading?'disabled':''}>${captionLoading?'<span class="spinner"></span>':'✍️ Caption'}</button>` : ''}
+        <button class="btn btn-sm btn-danger" data-action="delete-clip" data-id="${c.id}">Delete</button>
+      </div>
+    </div>`;
+  }
+
+  function videoCard(v){
+    const idx = VIDEO_STAGES.indexOf(v.stage);
+    const next = VIDEO_STAGES[idx+1];
+    return `
+    <div class="card">
+      ${v.thumbnail ? `<img src="${escapeHtml(v.thumbnail)}" alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:2px;display:block;margin-bottom:8px;background:#000;">` : ''}
+      <div class="ct">${escapeHtml(v.title)}</div>
+      <div class="cs">${v.pctComplete||0}% complete${v.scheduledDate?` · sched. ${fmtDate(v.scheduledDate)}`:''}</div>
+      ${typeof v.viewCount==='number' ? `<div class="cs">👁 ${fmtCount(v.viewCount)} · 👍 ${fmtCount(v.likeCount||0)} · 💬 ${fmtCount(v.commentCount||0)}</div>` : ''}
+      <div class="btn-row">
+        ${v.stage==='qc_review' ? `<button class="btn btn-sm" data-action="nav" data-tab="qc" data-video="${v.id}">Run QC</button>` : ''}
+        ${next && next!=='published' ? `<button class="btn btn-sm" data-action="advance-video" data-id="${v.id}">Advance ▸ ${STAGE_LABELS[next]}</button>` : ''}
+        ${next==='published' ? `<button class="btn btn-sm btn-primary" data-action="advance-video" data-id="${v.id}">Mark Published</button>` : ''}
+        <button class="btn btn-sm btn-danger" data-action="delete-video" data-id="${v.id}">Delete</button>
+      </div>
+    </div>`;
+  }
+
+  const unprocessed = state.sessions.filter(s=>true);
+  const col2 = state.clips.filter(c=>c.status!=='posted');
+  const colStages = ['recording_done','tiktok_clips_pending','yt_editing','thumbnail_title','qc_review','scheduled'];
+
+  return `
+    <div class="topbar">
+      <h1>Pipeline</h1>
+      <div class="btn-row">
+        <button class="btn btn-primary" data-action="open-form" data-form="session">+ Log Session</button>
+        <button class="btn" data-action="open-form" data-form="clip">+ Add Clip</button>
+        <button class="btn" data-action="open-form" data-form="video">+ Add Video</button>
+        <button class="btn" data-action="open-form" data-form="bulk-import">⇪ Bulk Import Posted Content</button>
+        <button class="btn" data-action="sync-youtube" ${state.ui.ytSyncing?'disabled':''}>${state.ui.ytSyncing?'<span class="spinner"></span> Syncing…':'🔄 Sync YouTube Now'}</button>
+        ${state.ui.tiktokConnected
+          ? `<button class="btn" data-action="sync-tiktok" ${state.ui.ttSyncing?'disabled':''}>${state.ui.ttSyncing?'<span class="spinner"></span> Syncing…':'🔄 Sync TikTok Now'}</button>`
+          : `<button class="btn" data-action="connect-tiktok">🔗 Connect TikTok</button>`}
+      </div>
+    </div>
+    ${sessionForm}${clipForm}${videoForm}${bulkImportForm}
+    <div class="board">
+      <div class="col">
+        <div class="col-head"><span>Logged Sessions</span><span>${state.sessions.length}</span></div>
+        ${state.sessions.length ? state.sessions.slice().reverse().map(sessionCard).join('') : '<div class="empty-col">No sessions logged yet</div>'}
+      </div>
+      <div class="col">
+        <div class="col-head"><span>Clip Editing</span><span>${col2.length}</span></div>
+        ${col2.length ? col2.slice().reverse().map(clipCard).join('') : '<div class="empty-col">No clips in progress</div>'}
+      </div>
+      ${colStages.map(stage=>{
+        const items = state.videos.filter(v=>v.stage===stage);
+        return `
+        <div class="col">
+          <div class="col-head"><span>${STAGE_LABELS[stage]}</span><span>${items.length}</span></div>
+          ${items.length ? items.map(videoCard).join('') : '<div class="empty-col">Empty</div>'}
+        </div>`;
+      }).join('')}
+      <div class="col">
+        <div class="col-head"><span>Published</span><span>${state.videos.filter(v=>v.stage==='published').length}</span></div>
+        ${state.videos.filter(v=>v.stage==='published').length ? state.videos.filter(v=>v.stage==='published').slice().reverse().map(videoCard).join('') : '<div class="empty-col">Nothing published yet</div>'}
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <div class="col-head" style="margin-top:14px;"><span>Posted Clips (archive)</span></div>
+      <div class="clip-thumb-grid">
+        ${state.clips.filter(c=>c.status==='posted').slice().reverse().map(c=>`
+          <a class="clip-thumb-card" href="${c.shareUrl?escapeHtml(c.shareUrl):'#'}" target="${c.shareUrl?'_blank':'_self'}" rel="noopener">
+            ${c.cover ? `<img src="${escapeHtml(c.cover)}" alt="">` : `<div class="clip-thumb-placeholder">${c.platform==='tiktok'?'TT':'YT'}</div>`}
+            <div class="ct-label">${escapeHtml(c.title)}</div>
+            ${typeof c.viewCount==='number' ? `<div class="ct-stats">👁 ${fmtCount(c.viewCount)} · ❤ ${fmtCount(c.likeCount||0)}</div>` : ''}
+          </a>
+        `).join('') || '<span class="cs" style="color:var(--text-faint);">None posted yet</span>'}
+      </div>
+    </div>
+  `;
+}
+
+/* ---------------- RENDER: REPURPOSING MAP ---------------- */
+function similarTitles(a,b){
+  const norm = s => (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').split(' ').filter(w=>w.length>3);
+  const wa = new Set(norm(a)), wb = norm(b);
+  if(wa.size===0 || wb.length===0) return 0;
+  let overlap = 0;
+  wb.forEach(w=>{ if(wa.has(w)) overlap++; });
+  return overlap / Math.max(wa.size, wb.length);
+}
+
+function renderRepurpose(){
+  if(state.sessions.length===0){
+    return `
+      <div class="topbar"><h1>Repurposing Map</h1></div>
+      <div class="panel empty-state">
+        <h3>No sessions logged yet</h3>
+        <p>Log a recording session on the Pipeline tab to start mapping what's been made from it.</p>
+        <button class="btn btn-primary" data-action="nav" data-tab="pipeline">Go to Pipeline</button>
+      </div>`;
+  }
+  const selId = state.ui.repurposeSelId || state.sessions[state.sessions.length-1].id;
+  const session = state.sessions.find(s=>s.id===selId) || state.sessions[state.sessions.length-1];
+  const clips = state.clips.filter(c=>c.sessionId===session.id);
+  const video = state.videos.find(v=>v.sessionId===session.id);
+  const tiktoks = clips.filter(c=>c.platform==='tiktok');
+  const shorts = clips.filter(c=>c.platform==='yt_short');
+
+  // duplicate detection across ALL clips (not just this session)
+  const dupWarnings = [];
+  clips.forEach(c=>{
+    state.clips.forEach(other=>{
+      if(other.id!==c.id && similarTitles(c.title, other.title) >= 0.6){
+        dupWarnings.push({a:c.title, b:other.title});
+      }
+    });
+  });
+  const seenDup = new Set();
+  const uniqueDup = dupWarnings.filter(d=>{
+    const key = [d.a,d.b].sort().join('|');
+    if(seenDup.has(key)) return false;
+    seenDup.add(key); return true;
+  });
+
+  const fullyRepurposed = video && video.stage==='published' && tiktoks.length>0;
+
+  return `
+    <div class="topbar"><h1>Repurposing Map</h1></div>
+    <div class="note-banner">Tracks what's already been pulled from each recording session, so the same footage doesn't get posted twice.</div>
+    <div class="panel">
+      <h2>Choose a Session</h2>
+      <select class="field" style="background:var(--bg-inset);border:1px solid var(--border-strong);color:var(--text);padding:9px 10px;border-radius:2px;width:100%;" data-action="select-repurpose-session">
+        ${state.sessions.slice().reverse().map(s=>`<option value="${s.id}" ${s.id===session.id?'selected':''}>${fmtDate(s.date)} — ${escapeHtml(s.game||'session')}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="panel">
+      <h2>${escapeHtml(session.game||'Session')} — ${fmtDate(session.date)}</h2>
+      <div class="stamp ${fullyRepurposed?'low':'med'}">${fullyRepurposed?'Fully Repurposed':'Repurposing In Progress'}</div>
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:14px;">
+        <div class="panel" style="margin:0;background:var(--bg-inset);">
+          <h3>🎮 Recording Session</h3>
+          <div class="cs">${session.durationMin?`${session.durationMin} min · `:''}${escapeHtml(session.notes||'No notes')}</div>
+        </div>
+
+        <div style="padding-left:20px;border-left:2px dashed var(--border-strong);display:flex;flex-direction:column;gap:12px;">
+          <div class="panel" style="margin:0;background:var(--bg-inset);">
+            <h3>🎬 Long-Form YouTube Video</h3>
+            ${video ? `<div class="cs">"${escapeHtml(video.title)}" — ${STAGE_LABELS[video.stage]}</div>` : `<div class="cs">Not started yet</div>`}
+          </div>
+
+          <div>
+            <h3 style="margin-bottom:8px;">✂️ Best Moments</h3>
+            <div style="display:flex;flex-direction:column;gap:8px;padding-left:14px;">
+              ${tiktoks.map((c,i)=>`<div class="panel" style="margin:0;background:var(--bg-inset);"><div class="ct">TikTok #${i+1}: ${escapeHtml(c.title)}</div><div class="cs">${CLIP_STATUS_LABELS[c.status]}</div></div>`).join('')}
+              ${shorts.map((c,i)=>`<div class="panel" style="margin:0;background:var(--bg-inset);"><div class="ct">YT Short #${i+1}: ${escapeHtml(c.title)}</div><div class="cs">${CLIP_STATUS_LABELS[c.status]}</div></div>`).join('')}
+              ${(tiktoks.length+shorts.length)===0 ? '<div class="empty-col">No clips pulled from this session yet</div>' : ''}
+            </div>
+            <div class="btn-row" style="margin-top:10px;"><button class="btn btn-sm" data-action="quick-clip" data-id="${session.id}">+ Add clip from this session</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${uniqueDup.length ? `
+    <div class="panel">
+      <h2>⚠ Possible Duplicate Titles</h2>
+      <div class="note-banner" style="border-left-color:var(--yellow);">Simple text-similarity check on clip titles — not a content analysis. Worth a manual look before posting.</div>
+      ${uniqueDup.map(d=>`<div class="cs" style="margin-bottom:6px;">"${escapeHtml(d.a)}" looks similar to "${escapeHtml(d.b)}"</div>`).join('')}
+    </div>` : ''}
+  `;
+}
+
+/* ---------------- CLAUDE API HELPER ---------------- */
+async function callClaude(system, user){
+  const response = await fetch("/api/ai/complete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ system, user })
+  });
+  const data = await response.json();
+  if(!response.ok){ throw new Error(data.error || ('API request failed: '+response.status)); }
+  const clean = (data.text||'').replace(/```json/g,'').replace(/```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+/* ---------------- RENDER: QC REVIEW ---------------- */
+function renderQC(){
+  const candidates = state.videos.filter(v=>v.stage!=='published');
+  if(candidates.length===0){
+    return `
+      <div class="topbar"><h1>Pre-Publish QC</h1></div>
+      <div class="panel empty-state">
+        <h3>No videos in progress</h3>
+        <p>Add a video on the Pipeline tab, then come back here before you publish it.</p>
+        <button class="btn btn-primary" data-action="nav" data-tab="pipeline">Go to Pipeline</button>
+      </div>`;
+  }
+  const selId = state.ui.qcSelectedVideoId || candidates[0].id;
+  const video = candidates.find(v=>v.id===selId) || candidates[0];
+
+  const resultBlock = video.qcFeedback ? renderQCResult(video.qcFeedback, video.qcScore) : '';
+
+  return `
+    <div class="topbar"><h1>Pre-Publish QC</h1></div>
+    <div class="note-banner">AI-generated qualitative feedback based on what you describe below — a second pair of eyes, not a guarantee of performance.</div>
+    <div class="panel">
+      <h2>Select Video</h2>
+      <select data-action="select-qc-video" style="background:var(--bg-inset);border:1px solid var(--border-strong);color:var(--text);padding:9px 10px;border-radius:2px;width:100%;">
+        ${candidates.map(v=>`<option value="${v.id}" ${v.id===video.id?'selected':''}>${escapeHtml(v.title)} — ${STAGE_LABELS[v.stage]}</option>`).join('')}
+      </select>
+    </div>
+    <div class="panel">
+      <h2>Describe the Video</h2>
+      <form data-action="run-qc" data-video="${video.id}">
+        <div class="field"><label>Title</label><input type="text" name="title" value="${escapeHtml(video.title)}" required></div>
+        <div class="field"><label>Planned hook (first 15–20 seconds)</label><textarea name="hook" placeholder="What happens in the opening moments to grab attention?">${escapeHtml(video.qcInput?.hook||'')}</textarea></div>
+        <div class="field"><label>Story / pacing structure</label><textarea name="structure" placeholder="Rough beat-by-beat of the video">${escapeHtml(video.qcInput?.structure||'')}</textarea></div>
+        <div class="field"><label>Thumbnail concept</label><textarea name="thumbnail" placeholder="Describe what the thumbnail will show">${escapeHtml(video.qcInput?.thumbnail||'')}</textarea></div>
+        <div class="field"><label>Description text (draft)</label><textarea name="description" placeholder="Video description you plan to publish with">${escapeHtml(video.qcInput?.description||'')}</textarea></div>
+        <div class="field"><label>Target platform</label><select name="platform"><option value="youtube_long">YouTube long-form</option><option value="youtube_short">YouTube Short</option><option value="tiktok">TikTok</option></select></div>
+        <div class="btn-row">
+          <button type="submit" class="btn btn-primary" ${state.ui.qcLoading?'disabled':''}>${state.ui.qcLoading?'<span class="spinner"></span> Reviewing…':'Run AI Quality Check'}</button>
+        </div>
+        ${state.ui.qcError ? `<div class="cs" style="color:var(--red-crit);margin-top:8px;">${escapeHtml(state.ui.qcError)}</div>` : ''}
+      </form>
+    </div>
+    ${resultBlock}
+  `;
+}
+
+function renderQCResult(fb, overallScore){
+  const cat = overallScore>=80?'low':overallScore>=60?'med':'high';
+  return `
+    <div class="panel">
+      <h2>Upload Readiness</h2>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <div class="score-badge stamp ${cat}"><span class="num">${overallScore}</span><span class="lbl">/100</span></div>
+        <div style="flex:1;">
+          <div class="qc-grid">
+            ${Object.entries(fb.sectionScores||{}).map(([k,v])=>`
+              <div class="qc-metric"><div class="n">${v.score}/10</div><div class="l">${k}</div></div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <h3>Strengths</h3>
+      <ul class="factor-list">${(fb.strengths||[]).map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ul>
+      <h3 style="margin-top:14px;">Improvements</h3>
+      <ul class="factor-list">${(fb.improvements||[]).map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ul>
+      <div class="note-banner" style="margin-top:14px;">These are suggestions from an AI review — following them doesn't guarantee better performance.</div>
+    </div>
+  `;
+}
+
+/* ---------------- RENDER: CONTENT POTENTIAL SCORE ---------------- */
+function renderPotential(){
+  const result = state.ui.potentialResult;
+  const ideas = state.ui.generatedIdeas;
+  return `
+    <div class="topbar"><h1>Content Potential Score</h1></div>
+    <div class="note-banner">An AI estimate of an idea's potential based on your channel profile and description — not a view prediction.</div>
+
+    <div class="panel">
+      <h2>💡 Get Fresh Ideas</h2>
+      <p class="cs">Generates original Rust content ideas tailored to your niches and style — not generic filler.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" data-action="generate-ideas" ${state.ui.ideaGenLoading?'disabled':''}>${state.ui.ideaGenLoading?'<span class="spinner"></span> Brainstorming…':'💡 Generate Fresh Ideas'}</button>
+      </div>
+      ${state.ui.ideaGenError ? `<div class="cs" style="color:var(--red-crit);margin-top:8px;">${escapeHtml(state.ui.ideaGenError)}</div>` : ''}
+      ${ideas ? `
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;">
+          ${ideas.map((idea,i)=>`
+            <div class="panel" style="margin:0;background:var(--bg-inset);">
+              <div class="stamp neutral" style="margin-bottom:8px;">${escapeHtml(idea.format||'')}</div>
+              <h3>${escapeHtml(idea.title)}</h3>
+              <p class="cs">${escapeHtml(idea.hook)}</p>
+              <p class="cs" style="color:var(--text-faint);"><i>Why it could work: ${escapeHtml(idea.whyItWorks)}</i></p>
+              <div class="btn-row">
+                <button class="btn btn-sm" data-action="idea-to-session" data-idx="${i}">+ Log as Session Idea</button>
+                <button class="btn btn-sm" data-action="idea-to-score" data-idx="${i}">Score This Idea</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+      <div class="note-banner" style="margin-top:12px;">AI-generated brainstorm — treat these as starting points to make your own, not scripts to copy exactly.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Describe the Idea or Clip</h2>
+      <form data-action="run-potential">
+        <div class="field"><label>Description</label><textarea name="description" id="potential-description-field" placeholder="e.g. Solo raiding a 2x2 base at night, ends in a clutch outplay" required>${escapeHtml(state.ui.potentialPrefill||'')}</textarea></div>
+        <div class="field-row">
+          <div class="field"><label>Target platform</label><select name="platform"><option value="tiktok">TikTok</option><option value="youtube_short">YouTube Short</option><option value="youtube_long">YouTube long-form</option></select></div>
+          <div class="field"><label>Estimated production effort</label><select name="effort"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+        </div>
+        <div class="checkbox-field"><input type="checkbox" name="repurposed" id="rep"><label for="rep" style="margin:0;">This is repurposed from existing footage</label></div>
+        <div class="btn-row">
+          <button type="submit" class="btn btn-primary" ${state.ui.potentialLoading?'disabled':''}>${state.ui.potentialLoading?'<span class="spinner"></span> Scoring…':'Estimate Potential'}</button>
+        </div>
+        ${state.ui.potentialError ? `<div class="cs" style="color:var(--red-crit);margin-top:8px;">${escapeHtml(state.ui.potentialError)}</div>` : ''}
+      </form>
+    </div>
+    ${result ? `
+    <div class="panel">
+      <h2>Content Potential Score</h2>
+      <div style="display:flex;gap:16px;align-items:flex-start;">
+        <div class="score-badge stamp ${result.score>=70?'low':result.score>=45?'med':'high'}"><span class="num">${result.score}</span><span class="lbl">/100</span></div>
+        <div style="flex:1;">
+          <div class="qc-grid">
+            ${Object.entries(result.factors||{}).map(([k,v])=>`<div class="qc-metric"><div class="n">${v.score}/10</div><div class="l">${k}</div></div>`).join('')}
+          </div>
+          <p style="margin-top:12px;">${escapeHtml(result.explanation||'')}</p>
+        </div>
+      </div>
+      <div class="note-banner">This is an AI estimate weighing fit, novelty, and packaging potential — it is not a guarantee of views or engagement.</div>
+      <div class="btn-row"><button class="btn" data-action="save-idea">Save to Ideas Bank</button></div>
+    </div>` : ''}
+
+    <div class="panel">
+      <h2>Ideas Bank (${state.profile.ideas.length})</h2>
+      ${state.profile.ideas.length ? state.profile.ideas.slice().reverse().map(idea=>`
+        <div class="task-row" style="cursor:default;">
+          <div class="mini-badge stamp ${idea.score>=70?'low':idea.score>=45?'med':'high'}"><span class="num">${idea.score}</span></div>
+          <div style="flex:1;">
+            <div class="title">${escapeHtml(idea.description)}</div>
+            <div class="sub">${idea.platform} · logged ${fmtDate(idea.date)}</div>
+          </div>
+          <button class="btn btn-sm btn-danger" data-action="delete-idea" data-id="${idea.id}">Delete</button>
+        </div>
+      `).join('') : '<div class="empty-col">No ideas saved yet</div>'}
+    </div>
+  `;
+}
+
+/* ---------------- RENDER: PROFILE (CREATOR MEMORY) ---------------- */
+function renderProfile(){
+  const p = state.profile;
+  return `
+    <div class="topbar"><h1>Creator Profile</h1></div>
+    <div class="note-banner">This is your persistent creator memory — it improves recommendations over time. You can view, edit, or delete anything here.</div>
+
+    <div class="panel">
+      <h2>Channel Basics</h2>
+      <form data-action="save-profile-basics">
+        <div class="field"><label>Channel name</label><input type="text" name="channelName" value="${escapeHtml(p.channelName)}"></div>
+        <div class="field-row">
+          <div class="field"><label>YouTube channel URL</label><input type="text" name="youtubeUrl" value="${escapeHtml(p.youtubeUrl||'')}" placeholder="https://youtube.com/@LuvMyMotion"></div>
+          <div class="field"><label>TikTok profile URL</label><input type="text" name="tiktokUrl" value="${escapeHtml(p.tiktokUrl||'')}" placeholder="https://tiktok.com/@LuvMyMotion"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Preferred editing style</label><input type="text" name="editingStyle" value="${escapeHtml(p.editingStyle)}" placeholder="Fast cuts, meme overlays, etc."></div>
+          <div class="field"><label>Preferred video length</label><input type="text" name="preferredLength" value="${escapeHtml(p.preferredLength)}" placeholder="e.g. 10–14 min long-form"></div>
+        </div>
+        <div class="field"><label>Posting goal / cadence</label><input type="text" name="cadenceGoal" value="${escapeHtml(p.cadenceGoal)}" placeholder="Stay consistent — no strict numbers yet"></div>
+        <div class="btn-row"><button type="submit" class="btn btn-primary">Save</button></div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Time Estimates (used by "Best Time To Post")</h2>
+      <p class="cs">How long each stage typically takes you, in minutes. Used to calculate whether you'll make the next posting window.</p>
+      <form data-action="save-profile-times">
+        <div class="field-row">
+          <div class="field"><label>Landing on an idea (min)</label><input type="number" name="ideaTimeMin" value="${p.ideaTimeMin||20}" min="0"></div>
+          <div class="field"><label>Recording a session (min)</label><input type="number" name="recordTimeMin" value="${p.recordTimeMin||90}" min="0"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Editing + posting a TikTok (min)</label><input type="number" name="tiktokEditTimeMin" value="${p.tiktokEditTimeMin||30}" min="0"></div>
+          <div class="field"><label>Editing the YouTube video (min)</label><input type="number" name="youtubeEditTimeMin" value="${p.youtubeEditTimeMin||180}" min="0"></div>
+        </div>
+        <div class="btn-row"><button type="submit" class="btn btn-primary">Save</button></div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Niches / Games</h2>
+      <div class="chip-row">
+        ${p.niches.map(n=>`<span class="chip">${escapeHtml(n)}<button data-action="remove-niche" data-value="${escapeHtml(n)}">✕</button></span>`).join('') || '<span class="cs" style="color:var(--text-faint);">None added yet</span>'}
+      </div>
+      <form data-action="add-niche" class="btn-row" style="margin-top:10px;">
+        <input type="text" name="niche" placeholder="e.g. Rust, PvP raids" style="flex:1;background:var(--bg-inset);border:1px solid var(--border-strong);color:var(--text);padding:9px 10px;border-radius:2px;">
+        <button type="submit" class="btn">Add</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Lessons Learned</h2>
+      ${p.lessonsLearned.map(l=>`
+        <div class="task-row" style="cursor:default;">
+          <div style="flex:1;"><div class="title">${escapeHtml(l.text)}</div><div class="sub">${fmtDate(l.date)}</div></div>
+          <button class="btn btn-sm btn-danger" data-action="delete-lesson" data-id="${l.id}">Delete</button>
+        </div>
+      `).join('') || '<div class="empty-col">Nothing logged yet</div>'}
+      <form data-action="add-lesson" class="btn-row" style="margin-top:10px;">
+        <input type="text" name="lesson" placeholder="e.g. Clips with a clear hook in the first 2s outperform others" style="flex:1;background:var(--bg-inset);border:1px solid var(--border-strong);color:var(--text);padding:9px 10px;border-radius:2px;">
+        <button type="submit" class="btn">Add</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Danger Zone</h2>
+      <p class="cs">Permanently clear every session, clip, video, and profile field stored in this app.</p>
+      <button class="btn btn-danger" data-action="confirm-reset">Clear All Data</button>
+    </div>
+  `;
+}
+
+/* ---------------- EVENT HANDLING ---------------- */
+document.addEventListener('click', async (e)=>{
+  const el = e.target.closest('[data-action]');
+  if(!el) return;
+  const action = el.dataset.action;
+
+  if(action==='nav'){
+    state.activeTab = el.dataset.tab;
+    state.ui.openForm = null;
+    if(el.dataset.video){ state.ui.qcSelectedVideoId = el.dataset.video; }
+    render();
+  }
+  else if(action==='open-form'){ state.ui.openForm = el.dataset.form; render(); }
+  else if(action==='close-form'){ state.ui.openForm = null; state.ui.sessionNotesPrefill = null; render(); }
+  else if(action==='toggle-task'){
+    state.ui.openTaskId = state.ui.openTaskId===el.dataset.id ? null : el.dataset.id;
+    render();
+  }
+  else if(action==='quick-clip'){
+    const sessionId = el.dataset.id;
+    const title = prompt('Clip title / hook:');
+    if(title){
+      state.clips.push({ id:uid(), sessionId, platform:'tiktok', title, status:'idea', createdDate:todayISO() });
+      await persist('clips');
+      render();
+      showToast('Clip added.');
+    }
+  }
+  else if(action==='quick-video'){
+    const sessionId = el.dataset.id;
+    const session = state.sessions.find(s=>s.id===sessionId);
+    const title = prompt('Video title:', session ? `${session.game} — ${fmtDate(session.date)}` : '');
+    if(title){
+      state.videos.push({ id:uid(), sessionId, title, stage:'recording_done', pctComplete:0, createdDate:todayISO() });
+      await persist('videos');
+      render();
+      showToast('Video added to pipeline.');
+    }
+  }
+  else if(action==='delete-session'){
+    if(confirm('Delete this session? Linked clips/videos will stay but lose the link.')){
+      state.sessions = state.sessions.filter(s=>s.id!==el.dataset.id);
+      await persist('sessions'); render(); showToast('Session deleted.');
+    }
+  }
+  else if(action==='delete-clip'){
+    state.clips = state.clips.filter(c=>c.id!==el.dataset.id);
+    await persist('clips'); render(); showToast('Clip deleted.');
+  }
+  else if(action==='delete-video'){
+    if(confirm('Delete this video?')){
+      state.videos = state.videos.filter(v=>v.id!==el.dataset.id);
+      await persist('videos'); render(); showToast('Video deleted.');
+    }
+  }
+  else if(action==='advance-clip'){
+    const c = state.clips.find(c=>c.id===el.dataset.id);
+    const idx = CLIP_STATUSES.indexOf(c.status);
+    c.status = CLIP_STATUSES[idx+1];
+    if(c.status==='posted') c.postedDate = todayISO();
+    await persist('clips'); render(); showToast(`Clip marked ${CLIP_STATUS_LABELS[c.status]}.`);
+  }
+  else if(action==='advance-video'){
+    const v = state.videos.find(v=>v.id===el.dataset.id);
+    const idx = VIDEO_STAGES.indexOf(v.stage);
+    v.stage = VIDEO_STAGES[idx+1];
+    if(v.stage==='published'){ v.publishedDate = todayISO(); v.pctComplete = 100; }
+    await persist('videos'); render(); showToast(`Video advanced to ${STAGE_LABELS[v.stage]}.`);
+  }
+  else if(action==='select-repurpose-session'){ /* handled in change listener */ }
+  else if(action==='remove-niche'){
+    state.profile.niches = state.profile.niches.filter(n=>n!==el.dataset.value);
+    await persist('profile'); render();
+  }
+  else if(action==='delete-lesson'){
+    state.profile.lessonsLearned = state.profile.lessonsLearned.filter(l=>l.id!==el.dataset.id);
+    await persist('profile'); render();
+  }
+  else if(action==='delete-idea'){
+    state.profile.ideas = state.profile.ideas.filter(i=>i.id!==el.dataset.id);
+    await persist('profile'); render();
+  }
+  else if(action==='save-idea'){
+    const r = state.ui.potentialResult;
+    if(r){
+      state.profile.ideas.push({ id:uid(), description:r.description, platform:r.platform, score:r.score, date:todayISO() });
+      await persist('profile');
+      showToast('Saved to Ideas Bank.');
+    }
+  }
+  else if(action==='confirm-reset'){
+    if(confirm('This permanently deletes all sessions, clips, videos, and profile data. Continue?')){
+      await resetAllData();
+    }
+  }
+  else if(action==='sync-youtube'){
+    state.ui.ytSyncing = true; render();
+    try{
+      const res = await fetch('/api/sync/youtube', { method:'POST' });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.error || 'Sync failed');
+      await loadAll();
+      showToast(`YouTube sync complete — ${data.added} new video(s) added.`);
+    }catch(err){
+      console.error(err);
+      showToast('YouTube sync failed: ' + err.message);
+    }
+    state.ui.ytSyncing = false; render();
+  }
+  else if(action==='connect-tiktok'){
+    window.location.href = '/api/auth/tiktok/login';
+  }
+  else if(action==='sync-tiktok'){
+    state.ui.ttSyncing = true; render();
+    try{
+      const res = await fetch('/api/sync/tiktok', { method:'POST' });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.error || 'Sync failed');
+      await loadAll();
+      showToast(`TikTok sync complete — ${data.added} new post(s) added.`);
+    }catch(err){
+      console.error(err);
+      showToast('TikTok sync failed: ' + err.message);
+    }
+    state.ui.ttSyncing = false; render();
+  }
+  else if(action==='generate-ideas'){
+    state.ui.ideaGenLoading = true; state.ui.ideaGenError = null; render();
+    try{
+      const system = `You are a creative Rust (the survival game) content strategist helping a creator brainstorm completely original, fun, highly-watchable short-form and long-form ideas — not generic "raid a base" filler. Respond with ONLY valid JSON, no markdown fences, no preamble, matching exactly this shape:
+{"ideas": [{"title": string, "hook": string, "format": string, "whyItWorks": string}, ...]}
+Generate exactly 5 ideas. Each must be genuinely different in format from the others (mix funny moments, tutorials/tips, story-driven mini-narratives, high-skill showcases, meme/trend-based bits, social experiments within the game, etc). "title" is a punchy working title. "hook" is 1-2 sentences on exactly what happens and how to execute it. "format" is one of: TikTok clip, YouTube Short, YouTube long-form. "whyItWorks" is one short sentence on the packaging/novelty angle. Avoid generic clichés like "epic raid montage" unless given a genuinely fresh twist.`;
+      const user = `Creator's niches/games: ${state.profile.niches.join(', ')||'Rust'}
+Preferred editing style: ${state.profile.editingStyle||'not specified'}
+Preferred video length: ${state.profile.preferredLength||'not specified'}
+Lessons learned from past content: ${state.profile.lessonsLearned.map(l=>l.text).join('; ')||'none logged yet'}`;
+      const result = await callClaude(system, user);
+      state.ui.generatedIdeas = result.ideas || [];
+    }catch(err){
+      console.error(err);
+      state.ui.ideaGenError = "Couldn't generate ideas right now — check your connection and try again.";
+    }
+    state.ui.ideaGenLoading = false; render();
+  }
+  else if(action==='idea-to-session'){
+    const idea = state.ui.generatedIdeas?.[Number(el.dataset.idx)];
+    if(idea){
+      state.ui.sessionNotesPrefill = `${idea.title} — ${idea.hook}`;
+      state.activeTab = 'pipeline';
+      state.ui.openForm = 'session';
+      render();
+      showToast('Idea loaded into a new session — fill in the date and record when ready.');
+    }
+  }
+  else if(action==='idea-to-score'){
+    const idea = state.ui.generatedIdeas?.[Number(el.dataset.idx)];
+    if(idea){
+      state.ui.potentialPrefill = `${idea.title} — ${idea.hook}`;
+      render();
+      const field = document.getElementById('potential-description-field');
+      if(field) field.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }
+  else if(action==='generate-caption'){
+    const clip = state.clips.find(c=>c.id===el.dataset.id);
+    if(!clip) return;
+    state.ui.captionLoadingId = clip.id; render();
+    try{
+      const system = `You are a TikTok caption writer for a Rust (survival game) gaming creator. Respond with ONLY valid JSON, no markdown fences, no preamble, matching exactly this shape:
+{"caption": string}
+"caption" should be a punchy, scroll-stopping TikTok caption (1-2 short lines, can include 1-2 emojis) followed by a line break and then 4-6 relevant hashtags mixing broad (#rust #rustgame #fyp) and niche (#rustpvp #rustraiding etc, adapt to the clip) tags. Keep it authentic and not spammy.`;
+      const user = `Clip title: ${clip.title}
+Creator's niches: ${state.profile.niches.join(', ')||'Rust'}
+Editing style: ${state.profile.editingStyle||'not specified'}`;
+      const result = await callClaude(system, user);
+      clip.captionSuggestion = result.caption;
+      await persist('clips');
+    }catch(err){
+      console.error(err);
+      showToast('Caption generation failed: ' + err.message);
+    }
+    state.ui.captionLoadingId = null; render();
+  }
+});
+
+document.addEventListener('change', (e)=>{
+  if(e.target.dataset && e.target.dataset.action==='select-repurpose-session'){
+    state.ui.repurposeSelId = e.target.value; render();
+  }
+  if(e.target.dataset && e.target.dataset.action==='select-qc-video'){
+    state.ui.qcSelectedVideoId = e.target.value; state.ui.qcError=null; render();
+  }
+});
+
+document.addEventListener('submit', async (e)=>{
+  const form = e.target.closest('form[data-action]');
+  if(!form) return;
+  e.preventDefault();
+  const action = form.dataset.action;
+  const fd = new FormData(form);
+
+  if(action==='save-session'){
+    state.sessions.push({
+      id:uid(), date:fd.get('date'), game:fd.get('game'),
+      durationMin:fd.get('durationMin')||null, notes:fd.get('notes')||'',
+      playingWith: fd.get('playingWith')||'',
+      worthClipping: fd.get('worthClipping')==='on', createdDate:todayISO()
+    });
+    await persist('sessions'); state.ui.openForm=null; state.ui.sessionNotesPrefill=null; render(); showToast('Session logged.');
+  }
+  else if(action==='save-clip'){
+    state.clips.push({
+      id:uid(), sessionId: fd.get('sessionId')||null, platform: fd.get('platform'),
+      title: fd.get('title'), status:'idea', createdDate:todayISO()
+    });
+    await persist('clips'); state.ui.openForm=null; render(); showToast('Clip added.');
+  }
+  else if(action==='save-video'){
+    state.videos.push({
+      id:uid(), title:fd.get('title'), sessionId:fd.get('sessionId')||null,
+      stage:fd.get('stage'), pctComplete:Number(fd.get('pctComplete'))||0,
+      scheduledDate:fd.get('scheduledDate')||null, notes:fd.get('notes')||'', createdDate:todayISO()
+    });
+    await persist('videos'); state.ui.openForm=null; render(); showToast('Video added.');
+  }
+  else if(action==='save-profile-basics'){
+    state.profile.channelName = fd.get('channelName')||'';
+    state.profile.youtubeUrl = fd.get('youtubeUrl')||'';
+    state.profile.tiktokUrl = fd.get('tiktokUrl')||'';
+    state.profile.editingStyle = fd.get('editingStyle')||'';
+    state.profile.preferredLength = fd.get('preferredLength')||'';
+    state.profile.cadenceGoal = fd.get('cadenceGoal')||'';
+    await persist('profile'); render(); showToast('Profile saved.');
+  }
+  else if(action==='save-profile-times'){
+    state.profile.ideaTimeMin = Number(fd.get('ideaTimeMin'))||20;
+    state.profile.recordTimeMin = Number(fd.get('recordTimeMin'))||90;
+    state.profile.tiktokEditTimeMin = Number(fd.get('tiktokEditTimeMin'))||30;
+    state.profile.youtubeEditTimeMin = Number(fd.get('youtubeEditTimeMin'))||180;
+    await persist('profile'); render(); showToast('Time estimates saved.');
+  }
+  else if(action==='add-niche'){
+    const val = fd.get('niche')?.trim();
+    if(val && !state.profile.niches.includes(val)){ state.profile.niches.push(val); await persist('profile'); }
+    render();
+  }
+  else if(action==='add-lesson'){
+    const val = fd.get('lesson')?.trim();
+    if(val){ state.profile.lessonsLearned.push({id:uid(), text:val, date:todayISO()}); await persist('profile'); }
+    render();
+  }
+  else if(action==='run-qc'){
+    const videoId = form.dataset.video;
+    const video = state.videos.find(v=>v.id===videoId);
+    const input = {
+      title: fd.get('title'), hook: fd.get('hook'), structure: fd.get('structure'),
+      thumbnail: fd.get('thumbnail'), description: fd.get('description'), platform: fd.get('platform')
+    };
+    video.qcInput = input;
+    state.ui.qcLoading = true; state.ui.qcError = null; render();
+    try{
+      const system = `You are a blunt, practical short-form and gaming-content editor reviewing a creator's video before they publish. Respond with ONLY valid JSON, no markdown fences, no preamble, matching exactly this shape:
+{"overallScore": number (0-100), "sectionScores": {"hook": {"score": number (0-10), "note": string}, "pacing": {"score": number, "note": string}, "structure": {"score": number, "note": string}, "title": {"score": number, "note": string}, "thumbnail": {"score": number, "note": string}, "description": {"score": number, "note": string}, "audienceClarity": {"score": number, "note": string}, "platformFit": {"score": number, "note": string}}, "strengths": [string, string], "improvements": [string, string, string]}
+Keep notes to one short sentence each. Be specific and concrete, not generic. Never claim a change guarantees performance.`;
+      const user = `Video title: ${input.title}
+Target platform: ${input.platform}
+Planned hook (first 15-20s): ${input.hook||'not described'}
+Story/pacing structure: ${input.structure||'not described'}
+Thumbnail concept: ${input.thumbnail||'not described'}
+Draft description: ${input.description||'not described'}`;
+      const result = await callClaude(system, user);
+      video.qcScore = result.overallScore;
+      video.qcFeedback = result;
+      await persist('videos');
+    }catch(err){
+      console.error(err);
+      state.ui.qcError = "Couldn't complete the AI review right now — check your connection and try again.";
+    }
+    state.ui.qcLoading = false;
+    render();
+  }
+  else if(action==='run-potential'){
+    const description = fd.get('description');
+    const platform = fd.get('platform');
+    const effort = fd.get('effort');
+    const repurposed = fd.get('repurposed')==='on';
+    state.ui.potentialLoading = true; state.ui.potentialError = null; render();
+    try{
+      const system = `You are an experienced gaming/short-form content strategist scoring a creator's content idea. Respond with ONLY valid JSON, no markdown fences, no preamble, matching exactly this shape:
+{"score": number (0-100), "factors": {"channelFit": {"score": number (0-10), "note": string}, "novelty": {"score": number, "note": string}, "hookStrength": {"score": number, "note": string}, "audienceRelevance": {"score": number, "note": string}, "repurposePotential": {"score": number, "note": string}}, "explanation": string}
+The explanation should be 2-3 sentences, specific to the idea, and must not claim to predict actual view counts — frame it as an estimate of fit and packaging potential only.`;
+      const user = `Creator's niches/games: ${state.profile.niches.join(', ')||'not specified'}
+Preferred editing style: ${state.profile.editingStyle||'not specified'}
+Lessons learned from past content: ${state.profile.lessonsLearned.map(l=>l.text).join('; ')||'none logged yet'}
+---
+Idea description: ${description}
+Target platform: ${platform}
+Estimated production effort: ${effort}
+Repurposed from existing footage: ${repurposed?'yes':'no'}`;
+      const result = await callClaude(system, user);
+      result.description = description; result.platform = platform;
+      state.ui.potentialResult = result;
+    }catch(err){
+      console.error(err);
+      state.ui.potentialError = "Couldn't complete the AI scoring right now — check your connection and try again.";
+    }
+    state.ui.potentialLoading = false;
+    render();
+  }
+  else if(action==='bulk-import'){
+    const parseLines = (raw) => (raw||'').split('\n').map(l=>l.trim()).filter(Boolean).map(line=>{
+      const [title, date] = line.split('|').map(s=>s && s.trim());
+      return { title, date: date || todayISO() };
+    });
+    const ytLines = parseLines(fd.get('youtube'));
+    const ttLines = parseLines(fd.get('tiktok'));
+    ytLines.forEach(item=>{
+      state.videos.push({
+        id:uid(), title:item.title, sessionId:null, stage:'published',
+        pctComplete:100, publishedDate:item.date, createdDate:todayISO()
+      });
+    });
+    ttLines.forEach(item=>{
+      state.clips.push({
+        id:uid(), sessionId:null, platform:'tiktok', title:item.title,
+        status:'posted', postedDate:item.date, createdDate:todayISO()
+      });
+    });
+    if(ytLines.length) await persist('videos');
+    if(ttLines.length) await persist('clips');
+    state.ui.openForm = null;
+    render();
+    showToast(`Imported ${ytLines.length} video(s) and ${ttLines.length} TikTok(s).`);
+  }
+});
+(async function init(){
+  render();
+  await loadAll();
+  try{
+    const statusRes = await fetch('/api/auth/tiktok/status');
+    const statusData = await statusRes.json();
+    state.ui.tiktokConnected = !!statusData.connected;
+  }catch(e){ /* leave as false */ }
+
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('tiktok')==='connected'){
+    showToast('TikTok connected! Hit "Sync TikTok Now" on the Pipeline tab.');
+    window.history.replaceState({}, '', window.location.pathname);
+  } else if(params.get('tiktok')==='error'){
+    const reason = params.get('reason');
+    showToast(reason ? ('TikTok connection failed: ' + reason) : 'TikTok connection failed — check your TikTok app credentials.');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
